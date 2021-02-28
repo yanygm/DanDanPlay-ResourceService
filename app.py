@@ -12,10 +12,13 @@ proxy_uri = ""
 
 app = FastAPI()
 dmhy_base_uri = "https://share.dmhy.org"
-dmhy_type_and_subgroup_uri = f"{dmhy_base_uri}/topics/advanced-search?team_id=0&sort_id=0&orderby=date-desc"
+dmhy_type_and_subgroup_uri = f"{dmhy_base_uri}/topics/advanced-search?sort_id=0&team_id=0&orderby=date-desc"
 dmhy_list_uri = f"{dmhy_base_uri}/topics/list/page/1?keyword={{0}}&sort_id={{1}}&team_id={{2}}&order=date-desc"
 unknown_subgroup_id = 0
 unknown_subgroup_name = "未知字幕组"
+
+def get_proxies():
+    return {'http': proxy_uri, 'https': proxy_uri}
 
 def parse_list_tr(tr):
     td0 = tr.select("td")[0]
@@ -40,10 +43,6 @@ def parse_list_tr(tr):
         "FileSize": td4.text.strip(),
         "PublishDate": arrow.get(td0.select("span")[0].text.strip()).format("YYYY-MM-DD HH:mm:ss")
     }
-
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
 
 @app.get("/subgroup")
 def subgroup():
@@ -83,4 +82,5 @@ if __name__ == "__main__":
         if arg.startswith("proxy="):
             proxy_uri = arg.replace("proxy=", "")
             continue
+
     uvicorn.run(app, host=run_host, port=run_port, debug=False)
