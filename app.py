@@ -14,13 +14,11 @@ app = FastAPI()
 dmhy_base_uri = "https://share.dmhy.org"
 dmhy_type_and_subgroup_uri = f"{dmhy_base_uri}/topics/advanced-search?team_id=0&sort_id=0&orderby=date-desc"
 dmhy_list_uri = f"{dmhy_base_uri}/topics/list/page/1?keyword={{0}}&sort_id={{1}}&team_id={{2}}&order=date-desc"
-unknown_subgroup_id = -1
+unknown_subgroup_id = 0
 unknown_subgroup_name = "未知字幕组"
-
 
 def get_proxies():
     return {'http': proxy_uri, 'https': proxy_uri}
-
 
 def parse_list_tr(tr):
     td0 = tr.select("td")[0]
@@ -46,11 +44,9 @@ def parse_list_tr(tr):
         "PublishDate": arrow.get(td0.select("span")[0].text.strip()).format("YYYY-MM-DD HH:mm:ss")
     }
 
-
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
-
 
 @app.get("/subgroup")
 def subgroup():
@@ -62,7 +58,6 @@ def subgroup():
     subgroups.append({"Id": unknown_subgroup_id, "Name": unknown_subgroup_name})
     return {"Subgroups": subgroups}
 
-
 @app.get("/type")
 def type():
     res = requests.get(dmhy_type_and_subgroup_uri, proxies=get_proxies())
@@ -71,7 +66,6 @@ def type():
     options = soup.select("select#AdvSearchSort option")
     return {"Types": [{"Id": int(o["value"]), "Name": o.text} for o in options]}
 
-
 @app.get("/list")
 def list(keyword: str, subgroup: Optional[str] = 0, type: Optional[str] = 0, r: Optional[str] = None):
     res = requests.get(dmhy_list_uri.format(keyword, type, subgroup), proxies=get_proxies())
@@ -79,9 +73,7 @@ def list(keyword: str, subgroup: Optional[str] = 0, type: Optional[str] = 0, r: 
     soup = BeautifulSoup(res.text, 'html.parser')
     trs = soup.select("table#topic_list tbody tr")
     has_more = True if soup.select("div.nav_title > a:contains('下一頁')") else False
-
     return {"HasMore": has_more, "Resources": [parse_list_tr(tr) for tr in trs]}
-
 
 if __name__ == "__main__":
     for arg in sys.argv:
@@ -94,5 +86,4 @@ if __name__ == "__main__":
         if arg.startswith("proxy="):
             proxy_uri = arg.replace("proxy=", "")
             continue
-
     uvicorn.run(app, host=run_host, port=run_port, debug=False)
