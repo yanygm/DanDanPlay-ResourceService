@@ -17,9 +17,6 @@ dmhy_list_uri = f"{dmhy_base_uri}/topics/list/page/1?keyword={{0}}&sort_id={{1}}
 unknown_subgroup_id = 0
 unknown_subgroup_name = "未知字幕组"
 
-def get_proxies():
-    return {'http': proxy_uri, 'https': proxy_uri}
-
 def parse_list_tr(tr):
     td0 = tr.select("td")[0]
     td1 = tr.select("td")[1]
