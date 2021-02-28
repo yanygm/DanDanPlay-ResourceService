@@ -63,7 +63,7 @@ def type():
     return {"Types": [{"Id": int(o["value"]), "Name": o.text} for o in options]}
 
 @app.get("/list")
-def list(keyword: str, subgroup: Optional[str] = 0, type: Optional[str] = 0, r: Optional[str] = None):
+def list(keyword: str, subgroup: Optional[str] = 0, type: Optional[str] = 0, r: Optional[str] = 0):
     res = requests.get(dmhy_list_uri.format(keyword, type, subgroup), proxies=get_proxies())
     res.encoding = "utf-8"
     soup = BeautifulSoup(res.text, 'html.parser')
